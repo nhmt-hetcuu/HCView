@@ -1,0 +1,48 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Khung kính Viewfinder bo tròn mờ ánh gương -->
+    <path
+        android:pathData="M27,27 h54 a8,8 0 0 1 8,8 v38 a8,8 0 0 1 -8,8 h-54 a8,8 0 0 1 -8,-8 v-38 a8,8 0 0 1 8,-8 z"
+        android:fillColor="#18FFFFFF"
+        android:strokeColor="#50FFFFFF"
+        android:strokeWidth="1.5" />
+
+    <!-- 4 Vạch góc lấy nét Viewfinder công nghệ -->
+    <path
+        android:pathData="M24,35 v-8 h8 M84,35 v-8 h-8 M24,73 v8 h8 M84,73 v8 h-8"
+        android:strokeColor="#90FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+
+    <!-- Chữ H thương hiệu cách điệu màu trắng tinh khiết -->
+    <path
+        android:pathData="M32,40 h5.5 v10 h9 v-10 h5.5 v28 h-5.5 v-11 h-9 v11 h-5.5 z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Chữ C thấu kính Viewfinder màu trắng tinh khiết -->
+    <path
+        android:pathData="M73,44.5 c-1.2,-1.6 -3.2,-2.5 -5.5,-2.5 c-4.6,0 -8.2,3.8 -8.2,9.8 s3.6,9.8 8.2,9.8 c2.3,0 4.3,-0.9 5.5,-2.5 l4,3.2 c-2.2,2.8 -5.6,4.5 -9.5,4.5 c-7.8,0 -13.8,-5.8 -13.8,-15 s6,-15 13.8,-15 c3.9,0 7.3,1.7 9.5,4.5 z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Chùm sóng truyền phát không dây (Screen Cast Waves) ngọc lục bảo -->
+    <path
+        android:pathData="M71,28 a7,7 0 0 1 7,7"
+        android:strokeColor="#00F5A0"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M69,23 a12,12 0 0 1 12,12"
+        android:strokeColor="#00F5A0"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round" />
+
+    <!-- Đèn LED trạng thái hoạt động -->
+    <path
+        android:pathData="M75,32m-2.5,0a2.5,2.5 0 1,0 5,0a2.5,2.5 0 1,0 -5,0"
+        android:fillColor="#00F5A0" />
+
+</vector>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Modern Tech Light Theme Palette (Mặc định màu trắng chuẩn phong cách Web) -->
+    <color name="background">#F8FAFC</color>
+    <color name="on_background">#0F172A</color>
+
+    <color name="surface">#FFFFFF</color>
+    <color name="on_surface">#0F172A</color>
+    <color name="surface_variant">#F1F5F9</color>
+    <color name="surface_border">#E2E8F0</color>
+    <color name="on_surface_variant">#475569</color>
+    <color name="text_muted">#64748B</color>
+
+    <!-- Electric Cyan Brand (Tương phản cao trên nền sáng) -->
+    <color name="primary">#0284C7</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#E0F2FE</color>
+    <color name="on_primary_container">#0369A1</color>
+    <color name="primary_glow">#330284C7</color>
+
+    <!-- Emerald / Accent -->
+    <color name="secondary">#059669</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#D1FAE5</color>
+    <color name="on_secondary_container">#065F46</color>
+
+    <color name="tertiary">#6366F1</color>
+    <color name="on_tertiary">#FFFFFF</color>
+    <color name="tertiary_container">#EEF2FF</color>
+    <color name="on_tertiary_container">#3730A3</color>
+
+    <!-- LCD Bezel Aesthetics -->
+    <color name="lcd_bezel_bg">#F1F5F9</color>
+    <color name="lcd_bezel_outer">#E2E8F0</color>
+    <color name="lcd_screen_frame">#CBD5E1</color>
+    <color name="lcd_accent_gold">#D97706</color>
+    <color name="lcd_white">#FFFFFF</color>
+    <color name="lcd_badge_bg">#E2E8F0</color>
+
+    <!-- Authentic LCD 191x62 Palettes -->
+    <color name="lcd_background">#A4B99E</color>
+    <color name="lcd_pixel_dark">#101A0E</color>
+    <color name="lcd_border">#3D4F3B</color>
+
+    <!-- Status Indicators -->
+    <color name="status_green">#16A34A</color>
+    <color name="status_green_bg">#DCFCE7</color>
+    <color name="status_orange">#D97706</color>
+    <color name="status_orange_bg">#FEF3C7</color>
+    <color name="status_red">#DC2626</color>
+    <color name="status_red_bg">#FEE2E2</color>
+    <color name="status_blue">#0284C7</color>
+    <color name="status_blue_bg">#E0F2FE</color>
+</resources>

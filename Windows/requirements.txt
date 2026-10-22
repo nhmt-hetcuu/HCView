@@ -1,0 +1,4 @@
+PyQt6>=6.5
+# Đã chạy thử với websockets 13.1. Bản 14+ đổi bộ API mặc định, chưa thử.
+websockets>=11,<14
+numpy>=1.24

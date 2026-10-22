@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">HCView</string>
+    <string name="developer_name">HC</string>
+    <string name="a11y_mo_ta">Cho phép thiết bị từ xa điều khiển cảm ứng, cuộn trang và gõ phím qua HCView.</string>
+
+    <string name="status_stopped">Đã dừng</string>
+    <string name="status_starting">Đang khởi động…</string>
+    <string name="status_listening">Đang lắng nghe kết nối (Cổng %1$d)</string>
+    <string name="status_waiting_device">Đang chờ thiết bị kết nối…</string>
+    <string name="status_paired">Đã kết nối với thiết bị (Đang truyền màn hình)</string>
+    <string name="status_device_disconnected">Thiết bị đã ngắt kết nối</string>
+    <string name="status_error">Lỗi: %1$s</string>
+
+    <string name="btn_start">Bắt đầu chia sẻ</string>
+    <string name="btn_stop">Dừng chia sẻ</string>
+
+    <string name="tab_direct">Chế độ A: Nối thẳng (WiFi/Hotspot)</string>
+    <string name="tab_relay">Chế độ B: Qua Server Relay</string>
+
+    <string name="label_ip_list">Địa chỉ nhập trên thiết bị:</string>
+    <string name="copied_to_clipboard">Đã chép vào bộ nhớ tạm</string>
+    <string name="label_lcd_preview">Màn hình mô phỏng Remote (191 × 62 px)</string>
+    <string name="label_region_settings">Vùng chụp màn hình (Tỉ lệ khuyến nghị ~3:1)</string>
+
+    <string name="notification_channel_name">HCView Service</string>
+    <string name="notification_channel_desc">Thông báo phiên làm việc chia sẻ màn hình HCView</string>
+    <string name="notification_title">HCView đang hoạt động</string>
+    <string name="notification_text">Đang truyền màn hình tới thiết bị từ xa</string>
+    <string name="action_stop">Dừng</string>
+</resources>

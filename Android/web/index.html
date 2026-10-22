@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="vi" class="transition-colors duration-300">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HCView • Remote Display</title>
+    <!-- Favicon SVG công nghệ chính thức cho HCView -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300D2FF'/%3E%3Cstop offset='50%25' stop-color='%230284C7'/%3E%3Cstop offset='100%25' stop-color='%234F46E5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Cpath d='M7 9h3v5h5V9h3v14h-3v-5h-5v5H7V9z' fill='white'/%3E%3Cpath d='M25 12c-.7-.9-1.8-1.5-3-1.5-2.5 0-4.5 2-4.5 5.5s2 5.5 4.5 5.5c1.2 0 2.3-.6 3-1.5l2 1.6c-1.2 1.5-3 2.4-5 2.4-4.2 0-7.5-3.2-7.5-8s3.3-8 7.5-8c2 0 3.8.9 5 2.4L25 12z' fill='%23E0F2FE'/%3E%3Ccircle cx='26' cy='7' r='2.5' fill='%2300F5A0'/%3E%3C/svg%3E">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        background: 'var(--bg-page)',
+                        surface: 'var(--bg-surface)',
+                        'surface-variant': 'var(--bg-surface-variant)',
+                        'surface-border': 'var(--border-surface)',
+                        primary: 'var(--color-primary)',
+                        'primary-glow': 'var(--color-primary-glow)',
+                        secondary: 'var(--color-secondary)',
+                        warning: 'var(--color-warning)',
+                        'warning-bg': 'var(--color-warning-bg)',
+                        'warning-border': 'var(--color-warning-border)',
+                        danger: 'var(--color-danger)',
+                        'text-primary': 'var(--text-primary)',
+                        'text-muted': 'var(--text-muted)'
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 20px -3px rgba(0, 210, 255, 0.35)',
+                        'neon-blue': '0 0 25px 2px rgba(14, 165, 233, 0.4)',
+                        'card-theme': 'var(--card-shadow)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* CSS Variables hỗ trợ Chế độ Sáng (Light) & Chế độ Tối (Dark) */
+        :root {
+            --bg-page: #F8FAFC;
+            --bg-surface: #FFFFFF;
+            --bg-surface-variant: #F1F5F9;
+            --border-surface: #E2E8F0;
+            --text-primary: #0F172A;
+            --text-muted: #64748B;
+            --color-primary: #0284C7;
+            --color-primary-glow: rgba(2, 132, 199, 0.25);
+            --color-secondary: #059669;
+            --color-warning: #B45309;
+            --color-warning-bg: #FEF3C7;
+            --color-warning-border: #FDE68A;
+            --color-danger: #EF4444;
+            --slider-track: #E2E8F0;
+            --slider-thumb: #0284C7;
+            --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+        }
+
+        html.dark {
+            --bg-page: #0B0F17;
+            --bg-surface: #131B26;
+            --bg-surface-variant: #1E2738;
+            --border-surface: #2A364B;
+            --text-primary: #F0F6FC;
+            --text-muted: #8B9BB4;
+            --color-primary: #00D2FF;
+            --color-primary-glow: rgba(0, 210, 255, 0.25);
+            --color-secondary: #00F5A0;
+            --color-warning: #FFB800;
+            --color-warning-bg: #2E2207;
+            --color-warning-border: #4A370A;
+            --color-danger: #FF4D5E;
+            --slider-track: #1E2738;
+            --slider-thumb: #00D2FF;
+            --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Tùy chỉnh thanh cuộn thích ứng theo Theme */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-page);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-surface-variant);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-surface);
+        }
+
+        /* Tùy chỉnh thanh trượt (slider) */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: var(--slider-track);
+            border-radius: 9999px;
+            border: 1px solid var(--border-surface);
+            transition: background 0.3s ease;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -6.5px;
+            box-shadow: 0 0 10px var(--color-primary-glow);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(0.95);
+        }
+
+        /* Hiệu ứng pulse sóng radar */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.4); opacity: 0; }
+            100% { transform: scale(0.9); opacity: 0; }
+        }
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary font-sans antialiased min-h-screen selection:bg-primary/20 selection:text-primary transition-colors duration-300">
+
+    <!-- Container bọc Mobile-first với kích thước tiêu chuẩn màn hình điện thoại -->
+    <div class="max-w-md mx-auto min-h-screen flex flex-col justify-between pb-10 px-4 pt-3">
+
+        <!-- 1. HEADER & THANH TIÊU ĐỀ KÈM NÚT CHUYỂN LIGHT / DARK MODE -->
+        <header class="flex items-center justify-between py-3 border-b border-surface-border/80">
+            <div class="flex items-center">
+                <h1 class="text-base font-bold tracking-tight text-text-primary flex items-center gap-1.5 leading-none">
+                    HCView
+                    <span class="px-1.5 py-0.5 text-[9px] font-mono font-semibold uppercase bg-primary/10 text-primary border border-primary/20 rounded">Pro</span>
+                </h1>
+            </div>
+
+            <!-- Cụm bên phải: Nút đổi giao diện Sáng/Tối (Light/Dark) + Badge trạng thái -->
+            <div class="flex items-center gap-2">
+                <!-- NÚT CHUYỂN LIGHT / DARK MODE -->
+                <button id="btnThemeToggle" class="w-8 h-8 rounded-xl bg-surface-variant hover:bg-surface-border border border-surface-border text-text-primary flex items-center justify-center transition-all duration-200 active:scale-90" title="Chuyển chế độ Sáng / Tối (Light/Dark)">
+                    <!-- Icon Mặt Trời (Hiện ở Dark mode để đổi sang Light) -->
+                    <svg id="iconSun" class="w-4 h-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="5" stroke-width="2"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                    </svg>
+                    <!-- Icon Mặt Trăng (Hiện ở Light mode để đổi sang Dark) -->
+                    <svg id="iconMoon" class="w-4 h-4 text-slate-700 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+
+                <!-- Trạng thái kết nối pill -->
+                <div id="statusBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-variant border border-surface-border text-xs font-semibold">
+                    <span class="relative flex h-2 w-2">
+                        <span id="statusPulse" class="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span id="statusDot" class="relative inline-flex rounded-full h-2 w-2 bg-danger"></span>
+                    </span>
+                    <span id="statusText" class="text-xs text-text-muted">Đã dừng</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 2. KHỐI CÀI ĐẶT DỊCH VỤ TRỢ NĂNG (GỌN GÀNG, BẬT TẮT 1 CHẠM) -->
+        <section class="mt-4">
+            <div id="cardA11y" class="rounded-2xl p-3.5 bg-surface border border-surface-border shadow-card-theme relative overflow-hidden backdrop-blur-sm transition-colors duration-300 cursor-pointer select-none">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div id="iconA11yBox" class="w-10 h-10 rounded-xl bg-surface-variant border border-surface-border flex items-center justify-center shrink-0 text-text-muted transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <path d="M12 8v4M12 16h.01"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-[14px] font-bold text-text-primary leading-tight">Dịch vụ Trợ năng</h2>
+                            <p id="descA11y" class="text-[12px] text-text-muted mt-0.5 leading-snug">
+                                Chưa bật • Chạm để kích hoạt trợ năng
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Switch Bật / Tắt duy nhất -->
+                    <button id="switchA11y" type="button" class="w-12 h-6.5 bg-surface-variant border border-surface-border rounded-full p-0.5 transition-colors duration-200 relative shrink-0 flex items-center focus:outline-none" aria-label="Bật tắt Trợ năng">
+                        <span id="switchA11yKnob" class="w-5 h-5 bg-text-muted rounded-full shadow-md transform transition-transform duration-200 translate-x-0 block"></span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. LƯỚI THÔNG SỐ (FPS, KHUNG HÌNH, DỮ LIỆU, KẾT NỐI) -->
+        <section class="mt-4">
+            <div class="grid grid-cols-2 gap-3">
+                <!-- FPS - Speedometer Gauge -->
+                <div class="bg-surface rounded-2xl p-3.5 border border-surface-border hover:border-primary/50 transition-colors shadow-card-theme">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Tốc độ (FPS)</span>
+                        <div class="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="M12 14v-4"/>
+                                <path d="M3.34 19a10 10 0 1 1 17.32 0"/>
+                                <circle cx="12" cy="14" r="2" fill="currentColor"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-baseline gap-1">
+                        <span id="metricFps" class="font-mono text-2xl font-bold text-text-primary tracking-tight">0</span>
+                        <span class="text-[11px] text-text-muted font-mono">/ 5 fps</span>
+                    </div>
+                </div>
+
+                <!-- KHUNG HÌNH - Film Frame Stack -->
+                <div class="bg-surface rounded-2xl p-3.5 border border-surface-border hover:border-primary/50 transition-colors shadow-card-theme">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Khung hình</span>
+                        <div class="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <rect x="2" y="2" width="20" height="20" rx="4"/>
+                                <path d="M2 7h20M2 17h20M7 2v5M17 2v5M7 17v5M17 17v5"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-baseline gap-1">
+                        <span id="metricFrames" class="font-mono text-2xl font-bold text-text-primary tracking-tight">0</span>
+                        <span class="text-[11px] text-text-muted">frames</span>
+                    </div>
+                </div>
+
+                <!-- DỮ LIỆU ĐÃ GỬI - Data Transfer Pulse -->
+                <div class="bg-surface rounded-2xl p-3.5 border border-surface-border hover:border-primary/50 transition-colors shadow-card-theme">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Đã gửi</span>
+                        <div class="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <polyline points="17 1 21 5 17 9"/>
+                                <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                                <polyline points="7 23 3 19 7 15"/>
+                                <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-baseline gap-1">
+                        <span id="metricBytes" class="font-mono text-2xl font-bold text-text-primary tracking-tight">0</span>
+                        <span class="text-[11px] text-text-muted font-mono">KB</span>
+                    </div>
+                </div>
+
+                <!-- KẾT NỐI - Thiết bị ngoại vi ESP32 đặc trưng -->
+                <div class="bg-surface rounded-2xl p-3.5 border border-surface-border hover:border-primary/50 transition-colors shadow-card-theme">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-text-muted uppercase tracking-wider">ESP32 Client</span>
+                        <div class="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary" title="ESP32 Device">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <rect x="4" y="2" width="16" height="20" rx="3"/>
+                                <line x1="8" y1="6" x2="16" y2="6"/>
+                                <line x1="16" y1="14" x2="16" y2="18"/>
+                                <line x1="8" y1="10" x2="8.01" y2="10"/>
+                                <line x1="12" y1="10" x2="12.01" y2="10"/>
+                                <line x1="16" y1="10" x2="16.01" y2="10"/>
+                                <line x1="8" y1="14" x2="8.01" y2="14"/>
+                                <line x1="12" y1="14" x2="12.01" y2="14"/>
+                                <line x1="8" y1="18" x2="8.01" y2="18"/>
+                                <line x1="12" y1="18" x2="12.01" y2="18"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-baseline gap-1">
+                        <span id="metricClients" class="font-mono text-2xl font-bold text-text-primary tracking-tight">0</span>
+                        <span class="text-[11px] text-text-muted">thiết bị</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ĐỊA CHỈ IP NHẬP TRÊN THIẾT BỊ -->
+        <section class="mt-3.5">
+            <div class="bg-surface rounded-2xl p-3 border border-surface-border flex items-center justify-between shadow-card-theme">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shrink-0 text-secondary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+                            <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                            <line x1="12" y1="20" x2="12.01" y2="20"/>
+                        </svg>
+                    </div>
+                    <div class="truncate">
+                        <span class="text-[10px] uppercase font-semibold text-text-muted tracking-wider block">Địa chỉ IP nhập trên thiết bị</span>
+                        <span id="ipAddressText" class="font-mono text-xs font-bold text-primary truncate block">192.168.1.15:8268</span>
+                    </div>
+                </div>
+                <button id="btnCopyIp" class="px-3 py-1.5 rounded-xl bg-surface-variant hover:bg-surface-border active:scale-95 text-xs font-semibold text-text-primary border border-surface-border flex items-center gap-1.5 shrink-0 transition-all shadow-sm">
+                    <svg class="w-3.5 h-3.5 text-secondary" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    <span>Chép</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ĐỊA CHỈ IP THIẾT BỊ KẾT NỐI (ESP32 CLIENT IP) -->
+        <section class="mt-2.5">
+            <div id="cardConnectedClient" class="bg-surface rounded-2xl p-3 border border-surface-border flex items-center justify-between shadow-card-theme transition-colors">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div id="iconConnectedClientBox" class="w-8 h-8 rounded-xl bg-surface-variant border border-surface-border flex items-center justify-center shrink-0 text-text-muted transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <rect x="4" y="2" width="16" height="20" rx="3"/>
+                            <line x1="8" y1="6" x2="16" y2="6"/>
+                            <line x1="16" y1="14" x2="16" y2="18"/>
+                            <line x1="8" y1="10" x2="8.01" y2="10"/>
+                            <line x1="12" y1="10" x2="12.01" y2="10"/>
+                            <line x1="16" y1="10" x2="16.01" y2="10"/>
+                            <line x1="8" y1="14" x2="8.01" y2="14"/>
+                            <line x1="12" y1="14" x2="12.01" y2="14"/>
+                            <line x1="8" y1="18" x2="8.01" y2="18"/>
+                            <line x1="12" y1="18" x2="12.01" y2="18"/>
+                        </svg>
+                    </div>
+                    <div class="truncate">
+                        <span class="text-[10px] uppercase font-semibold text-text-muted tracking-wider block">Thiết bị ngoại vi kết nối</span>
+                        <span id="connectedClientIpText" class="font-mono text-xs font-bold text-text-muted truncate block">Chờ thiết bị kết nối...</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <span id="connectedClientBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-surface-variant text-text-muted border border-surface-border">OFFLINE</span>
+                    <button id="btnCopyClientIp" class="px-2.5 py-1.5 rounded-xl bg-surface-variant hover:bg-surface-border active:scale-95 text-xs font-semibold text-text-primary border border-surface-border hidden items-center gap-1 transition-all shadow-sm" title="Chép IP thiết bị">
+                        <svg class="w-3.5 h-3.5 text-secondary" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        <span>Chép</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. NÚT BẤM LỚN MÀU XANH DƯƠNG GRADIENT "BẮT ĐẦU CHIA SẺ" -->
+        <section class="mt-4">
+            <button id="btnToggleSharing" class="w-full py-4 px-6 rounded-2xl font-bold text-base text-white tracking-wide flex items-center justify-center gap-2.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:via-blue-500 hover:to-indigo-500 active:scale-[0.98] transition-all duration-200 shadow-neon-blue border border-cyan-300/30 group">
+                <svg id="iconSharing" class="w-5 h-5 text-white transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                <span id="textSharing">BẮT ĐẦU CHIA SẺ</span>
+            </button>
+        </section>
+
+        <!-- 5. KHỐI TÙY CHỈNH "BỘ TĂNG NÉT & CHỐNG MỜ" -->
+        <section class="mt-5 bg-surface rounded-2xl p-4 border border-surface-border shadow-card-theme transition-colors duration-300">
+            <!-- Header với Badge Sparkles đa giác tinh xảo -->
+            <div class="flex items-center gap-2.5 mb-1.5">
+                <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/30 text-amber-500 flex items-center justify-center shrink-0 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-sm font-bold text-text-primary tracking-tight">Bộ Tăng Nét &amp; Chống Mờ Chữ</h3>
+            </div>
+            <p class="text-[12px] text-text-muted leading-relaxed">
+                Tối ưu nét chữ, số mũ, công thức và đơn vị toán học khi hiển thị trên màn hình LCD 191x62.
+            </p>
+
+            <!-- TABS: Chuẩn, Tăng nét, Siêu nét -->
+            <div class="mt-3.5 bg-surface-variant p-1 rounded-xl flex items-center gap-1 border border-surface-border">
+                <button class="tab-contrast flex-1 py-2 rounded-lg text-xs font-semibold text-text-muted hover:text-text-primary transition-all flex items-center justify-center gap-1.5" data-contrast="0">
+                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+                    <span>Chuẩn</span>
+                </button>
+                <button class="tab-contrast flex-1 py-2 rounded-lg text-xs font-semibold bg-surface border border-primary/50 text-primary shadow-sm transition-all flex items-center justify-center gap-1.5" data-contrast="1">
+                    <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><line x1="9" y1="8" x2="9" y2="16"/><line x1="15" y1="8" x2="15" y2="16"/></svg>
+                    <span>Tăng nét</span>
+                </button>
+                <button class="tab-contrast flex-1 py-2 rounded-lg text-xs font-semibold text-text-muted hover:text-text-primary transition-all flex items-center justify-center gap-1.5" data-contrast="2">
+                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15 8.5 22 9.3 17 14 18.5 21 12 17.5 5.5 21 7 14 2 9.3 9 8.5 12 2"/></svg>
+                    <span>Siêu nét</span>
+                </button>
+            </div>
+
+            <!-- TABS PHỤ: DITHERING (Văn bản & Toán / Hình ảnh mịn) -->
+            <div class="mt-3 flex items-center justify-between text-xs text-text-muted">
+                <span class="font-medium">Chế độ hiển thị:</span>
+                <div class="flex items-center gap-1 bg-surface-variant p-0.5 rounded-lg border border-surface-border">
+                    <button id="btnDitherSharp" class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-surface text-primary border border-primary/40 shadow-sm flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <polyline points="4 7 4 4 20 4 20 7"/>
+                            <line x1="9" y1="20" x2="15" y2="20"/>
+                            <line x1="12" y1="4" x2="12" y2="20"/>
+                        </svg>
+                        <span>Văn bản &amp; Toán</span>
+                    </button>
+                    <button id="btnDitherSmooth" class="px-2.5 py-1 rounded-md text-[11px] font-semibold text-text-muted hover:text-text-primary flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        <span>Hình ảnh mịn</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- THANH TRƯỢT (SLIDERS) Ở DƯỚI CÙNG -->
+            <div class="mt-4 pt-3 border-t border-surface-border space-y-4">
+
+                <!-- SLIDER 1: PHÓNG TO ĐƠN VỊ (ZOOM) -->
+                <div>
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="font-medium text-text-primary flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <circle cx="11" cy="11" r="7"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    <line x1="11" y1="8" x2="11" y2="14"/>
+                                    <line x1="8" y1="11" x2="14" y2="11"/>
+                                </svg>
+                            </span>
+                            Phóng to đơn vị &amp; chữ (Zoom)
+                        </span>
+                        <span id="labelZoomValue" class="font-mono font-bold text-primary px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20">1.5x</span>
+                    </div>
+                    <input id="sliderZoom" type="range" min="1.0" max="4.0" step="0.1" value="1.5" class="w-full">
+                    <div class="flex justify-between text-[10px] text-text-muted font-mono mt-0.5">
+                        <span>1.0x (Toàn cảnh)</span>
+                        <span>2.0x (To rõ)</span>
+                        <span>3.0x (Cực đại)</span>
+                    </div>
+                </div>
+
+                <!-- SLIDER 2: TỐC ĐỘ CUỘN TRANG (SCROLL SPEED) -->
+                <div>
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="font-medium text-text-primary flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-secondary/10 text-secondary border border-secondary/20 flex items-center justify-center shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" fill-opacity="0.2"/>
+                                </svg>
+                            </span>
+                            Tốc độ cuộn trang (Lệnh S)
+                        </span>
+                        <span id="labelScrollValue" class="font-mono font-bold text-secondary px-2 py-0.5 rounded-md bg-secondary/10 border border-secondary/20">1.0x</span>
+                    </div>
+                    <input id="sliderScrollSpeed" type="range" min="0.2" max="3.0" step="0.1" value="1.0" class="w-full">
+                    <div class="flex justify-between text-[10px] text-text-muted font-mono mt-0.5">
+                        <span>0.2x (Chậm &amp; Tỉ mỉ)</span>
+                        <span>1.0x (Vừa phải)</span>
+                        <span>3.0x (Nhanh)</span>
+                    </div>
+                </div>
+
+                <!-- SLIDER 3: TỐC ĐỘ KHUNG HÌNH (FPS) -->
+                <div>
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="font-medium text-text-primary flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                            </span>
+                            Tốc độ khung hình (FPS)
+                        </span>
+                        <span id="labelFpsValue" class="font-mono font-bold text-primary px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20">5 fps</span>
+                    </div>
+                    <input id="sliderFps" type="range" min="1" max="30" step="1" value="5" class="w-full">
+                </div>
+
+                <!-- CHECKBOX: GIỮ MÀN HÌNH LUÔN SÁNG -->
+                <div class="pt-1">
+                    <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                        <input id="cbKeepScreenOn" type="checkbox" checked class="w-4 h-4 rounded bg-surface-variant border-surface-border text-primary focus:ring-primary/20 accent-primary cursor-pointer">
+                        <span class="text-xs font-semibold text-secondary flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-md bg-secondary/15 text-secondary flex items-center justify-center shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="5"/>
+                                    <line x1="12" y1="1" x2="12" y2="3"/>
+                                    <line x1="12" y1="21" x2="12" y2="23"/>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                                    <line x1="1" y1="12" x2="3" y2="12"/>
+                                    <line x1="21" y1="12" x2="23" y2="12"/>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                                </svg>
+                            </span>
+                            Giữ màn hình điện thoại luôn mở (Không ngủ)
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER BRANDING -->
+        <footer class="mt-6 text-center text-xs text-text-muted">
+            <p class="font-bold text-primary tracking-wide">HCView</p>
+            <p class="text-[11px] text-text-muted/70 mt-1">Dành riêng cho thiết bị LCD 191x62</p>
+        </footer>
+
+    </div>
+
+    <!-- TOAST THÔNG BÁO COPY NHANH -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-surface/95 backdrop-blur-md border border-secondary/50 text-text-primary text-xs font-semibold py-2.5 px-4 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-3 flex items-center gap-2.5 z-50">
+        <div class="w-5 h-5 rounded-full bg-secondary/20 text-secondary flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+        </div>
+        <span id="toastMsg">Đã sao chép vào bộ nhớ tạm!</span>
+    </div>
+
+    <!-- JAVASCRIPT XỬ LÝ LIGHT / DARK THEME & TƯƠNG TÁC -->
+    <script>
+        // State
+        let isSharing = false;
+        let fpsTimer = null;
+        let framesCount = 0;
+        let bytesCount = 0;
+
+        // Theme Toggle Elements
+        const btnThemeToggle = document.getElementById('btnThemeToggle');
+        const iconSun = document.getElementById('iconSun');
+        const iconMoon = document.getElementById('iconMoon');
+
+        // Hàm cập nhật giao diện Sáng / Tối (Light / Dark)
+        function updateTheme(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                iconSun.classList.remove('hidden');
+                iconMoon.classList.add('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                iconSun.classList.add('hidden');
+                iconMoon.classList.remove('hidden');
+            }
+        }
+
+        // Lấy theme từ localStorage hoặc mặc định Light (Trắng)
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        updateTheme(currentTheme === 'dark');
+
+        // Bắt sự kiện chuyển đổi giao diện Sáng / Tối
+        btnThemeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            const nextTheme = isDark ? 'light' : 'dark';
+            localStorage.setItem('theme', nextTheme);
+            updateTheme(nextTheme === 'dark');
+            showToast(nextTheme === 'dark' ? 'Đã chuyển sang Chế độ Tối (Dark mode)' : 'Đã chuyển sang Chế độ Sáng (Light mode)');
+        });
+
+        // Elements
+        const btnToggleSharing = document.getElementById('btnToggleSharing');
+        const textSharing = document.getElementById('textSharing');
+        const iconSharing = document.getElementById('iconSharing');
+        const statusBadge = document.getElementById('statusBadge');
+        const statusDot = document.getElementById('statusDot');
+        const statusPulse = document.getElementById('statusPulse');
+        const statusText = document.getElementById('statusText');
+        
+        const metricFps = document.getElementById('metricFps');
+        const metricFrames = document.getElementById('metricFrames');
+        const metricBytes = document.getElementById('metricBytes');
+        const metricClients = document.getElementById('metricClients');
+        
+        const sliderZoom = document.getElementById('sliderZoom');
+        const labelZoomValue = document.getElementById('labelZoomValue');
+        const sliderScrollSpeed = document.getElementById('sliderScrollSpeed');
+        const labelScrollValue = document.getElementById('labelScrollValue');
+        const sliderFps = document.getElementById('sliderFps');
+        const labelFpsValue = document.getElementById('labelFpsValue');
+
+        const btnCopyIp = document.getElementById('btnCopyIp');
+        const ipAddressText = document.getElementById('ipAddressText');
+        const connectedClientIpText = document.getElementById('connectedClientIpText');
+        const connectedClientBadge = document.getElementById('connectedClientBadge');
+        const iconConnectedClientBox = document.getElementById('iconConnectedClientBox');
+        const btnCopyClientIp = document.getElementById('btnCopyClientIp');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+
+        // Toggle Sharing Handler
+        btnToggleSharing.addEventListener('click', () => {
+            isSharing = !isSharing;
+            if (isSharing) {
+                // UI Chuyển sang đang chia sẻ
+                btnToggleSharing.className = "w-full py-4 px-6 rounded-2xl font-bold text-base text-white tracking-wide flex items-center justify-center gap-2.5 bg-gradient-to-r from-red-500 via-rose-600 to-pink-600 hover:from-red-400 hover:via-rose-500 hover:to-pink-500 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-rose-500/30 border border-rose-400/30 group";
+                textSharing.textContent = "DỪNG CHIA SẺ";
+                iconSharing.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>';
+                
+                statusText.textContent = "Đang chia sẻ";
+                statusText.className = "text-xs font-semibold text-secondary";
+                statusDot.className = "relative inline-flex rounded-full h-2 w-2 bg-secondary";
+                statusPulse.className = "absolute inline-flex h-full w-full rounded-full bg-secondary pulse-ring";
+                metricClients.textContent = "1";
+
+                // Hiển thị IP thiết bị kết nối
+                connectedClientIpText.textContent = "192.168.1.45";
+                connectedClientIpText.className = "font-mono text-xs font-bold text-secondary truncate block";
+                connectedClientBadge.textContent = "ONLINE";
+                connectedClientBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-secondary/10 text-secondary border border-secondary/20";
+                iconConnectedClientBox.className = "w-8 h-8 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shrink-0 text-secondary transition-colors";
+                btnCopyClientIp.classList.remove('hidden');
+                btnCopyClientIp.classList.add('flex');
+
+                // Bắt đầu nhịp gửi khung hình mô phỏng
+                const currentFps = parseInt(sliderFps.value) || 5;
+                metricFps.textContent = currentFps;
+                fpsTimer = setInterval(() => {
+                    framesCount++;
+                    bytesCount += 3;
+                    metricFrames.textContent = framesCount;
+                    metricBytes.textContent = bytesCount;
+                }, 1000 / currentFps);
+
+                showToast("Đã ghép cặp với thiết bị (192.168.1.45)!");
+            } else {
+                // UI Dừng chia sẻ
+                btnToggleSharing.className = "w-full py-4 px-6 rounded-2xl font-bold text-base text-white tracking-wide flex items-center justify-center gap-2.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:via-blue-500 hover:to-indigo-500 active:scale-[0.98] transition-all duration-200 shadow-neon-blue border border-cyan-300/30 group";
+                textSharing.textContent = "BẮT ĐẦU CHIA SẺ";
+                iconSharing.innerHTML = '<polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>';
+                
+                statusText.textContent = "Đã dừng";
+                statusText.className = "text-xs text-text-muted";
+                statusDot.className = "relative inline-flex rounded-full h-2 w-2 bg-danger";
+                statusPulse.className = "hidden";
+                metricFps.textContent = "0";
+                metricClients.textContent = "0";
+
+                // Reset IP thiết bị kết nối
+                connectedClientIpText.textContent = "Chờ thiết bị kết nối...";
+                connectedClientIpText.className = "font-mono text-xs font-bold text-text-muted truncate block";
+                connectedClientBadge.textContent = "OFFLINE";
+                connectedClientBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-surface-variant text-text-muted border border-surface-border";
+                iconConnectedClientBox.className = "w-8 h-8 rounded-xl bg-surface-variant border border-surface-border flex items-center justify-center shrink-0 text-text-muted transition-colors";
+                btnCopyClientIp.classList.add('hidden');
+                btnCopyClientIp.classList.remove('flex');
+
+                clearInterval(fpsTimer);
+                showToast("Đã dừng chia sẻ.");
+            }
+        });
+
+        btnCopyClientIp.addEventListener('click', () => {
+            const ip = connectedClientIpText.textContent;
+            navigator.clipboard.writeText(ip);
+            showToast("Đã chép IP thiết bị: " + ip);
+        });
+
+        // Tabs Tăng nét & Chống mờ
+        const tabs = document.querySelectorAll('.tab-contrast');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.className = "tab-contrast flex-1 py-2 rounded-lg text-xs font-semibold text-text-muted hover:text-text-primary transition-all flex items-center justify-center gap-1.5";
+                });
+                tab.className = "tab-contrast flex-1 py-2 rounded-lg text-xs font-semibold bg-surface border border-primary/50 text-primary shadow-sm transition-all flex items-center justify-center gap-1.5";
+                showToast("Đã chọn chế độ: " + tab.innerText.trim());
+            });
+        });
+
+        // Dithering buttons
+        const btnDitherSharp = document.getElementById('btnDitherSharp');
+        const btnDitherSmooth = document.getElementById('btnDitherSmooth');
+        btnDitherSharp.addEventListener('click', () => {
+            btnDitherSharp.className = "px-2.5 py-1 rounded-md text-[11px] font-semibold bg-surface text-primary border border-primary/40 shadow-sm flex items-center gap-1";
+            btnDitherSmooth.className = "px-2.5 py-1 rounded-md text-[11px] font-semibold text-text-muted hover:text-text-primary flex items-center gap-1";
+        });
+        btnDitherSmooth.addEventListener('click', () => {
+            btnDitherSmooth.className = "px-2.5 py-1 rounded-md text-[11px] font-semibold bg-surface text-primary border border-primary/40 shadow-sm flex items-center gap-1";
+            btnDitherSharp.className = "px-2.5 py-1 rounded-md text-[11px] font-semibold text-text-muted hover:text-text-primary flex items-center gap-1";
+        });
+
+        // Sliders updates
+        sliderZoom.addEventListener('input', (e) => {
+            labelZoomValue.textContent = parseFloat(e.target.value).toFixed(1) + "x";
+        });
+        sliderScrollSpeed.addEventListener('input', (e) => {
+            labelScrollValue.textContent = parseFloat(e.target.value).toFixed(1) + "x";
+        });
+        sliderFps.addEventListener('input', (e) => {
+            labelFpsValue.textContent = e.target.value + " fps";
+            if (isSharing) {
+                metricFps.textContent = e.target.value;
+            }
+        });
+
+        // Copy IP
+        btnCopyIp.addEventListener('click', () => {
+            navigator.clipboard.writeText(ipAddressText.textContent).then(() => {
+                showToast("Đã sao chép IP: " + ipAddressText.textContent);
+            });
+        });
+
+        // Trợ năng Interactive Toggle & Actions
+        // Trợ năng: Bật / Tắt 1 chạm gọn gàng
+        let isA11yEnabled = false;
+        const cardA11y = document.getElementById('cardA11y');
+        const switchA11y = document.getElementById('switchA11y');
+        const switchA11yKnob = document.getElementById('switchA11yKnob');
+        const descA11y = document.getElementById('descA11y');
+        const iconA11yBox = document.getElementById('iconA11yBox');
+
+        function setA11yState(enabled) {
+            isA11yEnabled = enabled;
+            if (enabled) {
+                switchA11y.className = "w-12 h-6.5 bg-emerald-500/20 border border-emerald-500/40 rounded-full p-0.5 transition-colors duration-200 relative shrink-0 flex items-center focus:outline-none";
+                switchA11yKnob.className = "w-5 h-5 bg-emerald-500 rounded-full shadow-md transform transition-transform duration-200 translate-x-5.5 block";
+                descA11y.textContent = "Đang bật • Sẵn sàng chạm, cuộn & gõ từ thiết bị";
+                descA11y.className = "text-[12px] text-emerald-500 font-medium mt-0.5 leading-snug";
+                iconA11yBox.className = "w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-500 transition-colors";
+            } else {
+                switchA11y.className = "w-12 h-6.5 bg-surface-variant border border-surface-border rounded-full p-0.5 transition-colors duration-200 relative shrink-0 flex items-center focus:outline-none";
+                switchA11yKnob.className = "w-5 h-5 bg-text-muted rounded-full shadow-md transform transition-transform duration-200 translate-x-0 block";
+                descA11y.textContent = "Chưa bật • Chạm để kích hoạt trợ năng";
+                descA11y.className = "text-[12px] text-text-muted mt-0.5 leading-snug";
+                iconA11yBox.className = "w-10 h-10 rounded-xl bg-surface-variant border border-surface-border flex items-center justify-center shrink-0 text-text-muted transition-colors";
+            }
+        }
+
+        cardA11y.addEventListener('click', () => {
+            setA11yState(!isA11yEnabled);
+            showToast(isA11yEnabled ? "Đã bật Dịch vụ Trợ năng" : "Đã tắt Dịch vụ Trợ năng");
+        });
+
+        // Toast Helper
+        let toastTimeout = null;
+        function showToast(msg) {
+            toastMsg.textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-3', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-3', 'pointer-events-none');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 2400);
+        }
+    </script>
+</body>
+</html>

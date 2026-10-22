@@ -1,0 +1,20 @@
+{
+  "che_do": "direct_server",
+  "direct_port": 8299,
+  "server_url": "http://localhost:8000",
+  "ws_path": "/ws/remote",
+  "username": "",
+  "password": "",
+  "device_id": "",
+  "token": "",
+  "fps": 5,
+  "region_x": 100,
+  "region_y": 100,
+  "region_w": 286,
+  "region_h": 92,
+  "region_zoom": 1.5,
+  "pan_ty_le": 0.5,
+  "toc_do_cuon": 1.0,
+  "muc_net": 1,
+  "invert": false
+}
